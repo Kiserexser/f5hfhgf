@@ -1,6 +1,7 @@
 package com.example.speed;
 
 import net.fabricmc.api.ModInitializer;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -16,10 +17,9 @@ public class SpeedMod implements ModInitializer {
     @Override
     public void onInitialize() {
         LOGGER.info("Speed Mod initialized!");
-        // Миксин сам перехватит правый Shift
     }
 
-    // ==================== GUI и внутренние классы ====================
+    // ==================== GUI ====================
 
     public static class ModMenuScreen extends Screen {
         private static final int MENU_WIDTH = 320;
@@ -162,7 +162,7 @@ public class SpeedMod implements ModInitializer {
         }
     }
 
-    // ---- Вспомогательные классы для GUI ----
+    // ---- Вспомогательные классы ----
     public static class SectionButton extends ButtonWidget {
         private int defaultColor = 0xFFFFFFFF;
         private int hoverColor = 0xFFFFB6C1;
@@ -179,7 +179,8 @@ public class SpeedMod implements ModInitializer {
         @Override
         public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
             int color = hovered ? hoverColor : defaultColor;
-            context.drawText(getTextRenderer(), this.getMessage(), this.getX() + 2, this.getY() + (this.getHeight() - 8) / 2, color, false);
+            context.drawText(MinecraftClient.getInstance().textRenderer, this.getMessage(),
+                    this.getX() + 2, this.getY() + (this.getHeight() - 8) / 2, color, false);
         }
     }
 
@@ -199,7 +200,8 @@ public class SpeedMod implements ModInitializer {
         @Override
         public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
             int color = this.active ? 0xFFFFFFFF : 0xFF888888;
-            context.drawText(getTextRenderer(), this.getMessage(), this.getX() + 2, this.getY() + (this.getHeight() - 8) / 2, color, false);
+            context.drawText(MinecraftClient.getInstance().textRenderer, this.getMessage(),
+                    this.getX() + 2, this.getY() + (this.getHeight() - 8) / 2, color, false);
             context.drawBorder(this.getX(), this.getY(), this.getWidth(), this.getHeight(), 0xFF666666);
             if (this.isHovered()) context.fill(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + this.getHeight(), 0x22FFFFFF);
         }
