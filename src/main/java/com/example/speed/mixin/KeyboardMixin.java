@@ -12,7 +12,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class KeyboardMixin {
     @Inject(method = "onKey", at = @At("HEAD"), cancellable = true)
     private void onKey(long window, int key, int scancode, int action, int modifiers, CallbackInfo ci) {
-        if (key == 54 && action == 1) { // правый Shift
+        // Логируем все нажатия клавиш, чтобы убедиться, что миксин работает
+        SpeedMod.LOGGER.info("Key pressed: key={}, action={}", key, action);
+        if (key == 54 && action == 1) { // правый Shift нажат
+            SpeedMod.LOGGER.info("Right Shift pressed! Opening menu.");
             MinecraftClient client = MinecraftClient.getInstance();
             if (client.currentScreen instanceof SpeedMod.ModMenuScreen) {
                 client.currentScreen.close();
