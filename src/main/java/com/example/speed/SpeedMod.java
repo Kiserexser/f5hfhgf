@@ -28,10 +28,10 @@ public class SpeedMod implements ModInitializer {
             MinecraftClient mc = MinecraftClient.getInstance();
             if (mc.player == null || mc.player != player) return;
 
-            // 1. Всегда прыгать (onInput)
-            player.input.jump = true; // Исправлено: поле называется jump, а не jumping
+            // 1. Постоянный прыжок — поле называется jumping
+            player.input.jumping = true;
 
-            // 2. Расчёт движения (onTick)
+            // 2. Движение
             double grim = 0.03;
             if (player.isOnGround()) {
                 grim *= 2.8500699;
@@ -50,10 +50,9 @@ public class SpeedMod implements ModInitializer {
                 player.setVelocity(player.getVelocity().add(0.0, -0.050699, 0.0));
             }
 
-            // 3. Отправка пакетов (onPreMotion)
+            // 3. Пакеты — используем OnGroundOnly
             if (mc.player != null && mc.player.networkHandler != null) {
-                // Исправлено: конструктор принимает boolean onGround
-                mc.player.networkHandler.sendPacket(new PlayerMoveC2SPacket(false));
+                mc.player.networkHandler.sendPacket(new PlayerMoveC2SPacket.OnGroundOnly(false));
                 mc.player.networkHandler.sendPacket(
                     new ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.START_FALL_FLYING)
                 );
