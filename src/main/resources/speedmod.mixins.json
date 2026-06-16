@@ -1,10 +1,10 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "com.example.speed.mixin",
+  "package": "com.example.speed",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "KeyboardMixin"
+    "SpeedMod$KeyboardMixin"
   ],
   "client": [],
   "injectors": {
