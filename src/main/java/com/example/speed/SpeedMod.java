@@ -1,44 +1,43 @@
 package com.example.speed;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.option.KeyBinding;
 import net.minecraft.text.Text;
+import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.*;
 
 public class SpeedMod implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger("speedmod");
+    private static KeyBinding openMenuKey;
 
     @Override
     public void onInitialize() {
-        LOGGER.info("Speed Mod initialized! Press R to open menu.");
-    }
-
-    // ==================== ВНУТРЕННИЙ МИКСИН (перехват R) ====================
-
-    @Mixin(net.minecraft.client.Keyboard.class)
-    public static class KeyboardMixin {
-        @Inject(method = "onKey", at = @At("HEAD"), cancellable = true)
-        private void onKey(long window, int key, int scancode, int action, int modifiers, CallbackInfo ci) {
-            if (key == 19 && action == 1) { // R нажат
-                MinecraftClient client = MinecraftClient.getInstance();
+        LOGGER.info("Speed Mod initialized! Press Right Shift to open menu.");
+        // Регистрируем клавишу
+        openMenuKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.speedmod.openmenu",
+                GLFW.GLFW_KEY_RIGHT_SHIFT,
+                "category.speedmod"
+        ));
+        // Обработчик нажатия
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (openMenuKey.wasPressed()) {
                 if (client.currentScreen instanceof ModMenuScreen) {
                     client.currentScreen.close();
                 } else {
                     client.setScreen(new ModMenuScreen());
                 }
-                ci.cancel();
             }
-        }
+        });
     }
 
     // ==================== GUI ====================
@@ -179,7 +178,7 @@ public class SpeedMod implements ModInitializer {
 
         @Override
         public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-            if (keyCode == 19) { // R
+            if (keyCode == GLFW.GLFW_KEY_RIGHT_SHIFT) {
                 this.close();
                 return true;
             }
@@ -187,6 +186,7 @@ public class SpeedMod implements ModInitializer {
         }
     }
 
+    // ---- Вспомогательные классы ----
     public static class SectionButton extends ButtonWidget {
         private int defaultColor = 0xFFFFFFFF;
         private int hoverColor = 0xFFFFB6C1;
