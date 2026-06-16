@@ -20,8 +20,6 @@ public class SpeedMod implements ModInitializer {
         LOGGER.info("Speed Mod initialized!");
     }
 
-    // ==================== ВНУТРЕННИЙ МИКСИН ====================
-
     @Mixin(ClientPlayerEntity.class)
     public static class MixinClientPlayerTick {
         @Inject(method = "tick", at = @At("TAIL"))
@@ -31,7 +29,7 @@ public class SpeedMod implements ModInitializer {
             if (mc.player == null || mc.player != player) return;
 
             // 1. Всегда прыгать (onInput)
-            player.input.jumping = true;
+            player.input.jump = true; // Исправлено: поле называется jump, а не jumping
 
             // 2. Расчёт движения (onTick)
             double grim = 0.03;
@@ -41,7 +39,7 @@ public class SpeedMod implements ModInitializer {
                 grim *= 1.0200699;
             }
 
-            float yaw = player.getYaw() + 90f; // аналог MovementUtility.getdir()
+            float yaw = player.getYaw() + 90f;
             double rad = Math.toRadians(yaw);
             double mx = grim * Math.cos(rad);
             double mz = grim * Math.sin(rad);
@@ -54,7 +52,8 @@ public class SpeedMod implements ModInitializer {
 
             // 3. Отправка пакетов (onPreMotion)
             if (mc.player != null && mc.player.networkHandler != null) {
-                mc.player.networkHandler.sendPacket(new PlayerMoveC2SPacket.StatusOnly(false));
+                // Исправлено: конструктор принимает boolean onGround
+                mc.player.networkHandler.sendPacket(new PlayerMoveC2SPacket(false));
                 mc.player.networkHandler.sendPacket(
                     new ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.START_FALL_FLYING)
                 );
