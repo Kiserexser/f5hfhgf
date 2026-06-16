@@ -8,6 +8,10 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.*;
 
@@ -16,7 +20,25 @@ public class SpeedMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        LOGGER.info("Speed Mod initialized!");
+        LOGGER.info("Speed Mod initialized! Press R to open menu.");
+    }
+
+    // ==================== ВНУТРЕННИЙ МИКСИН (перехват R) ====================
+
+    @Mixin(net.minecraft.client.Keyboard.class)
+    public static class KeyboardMixin {
+        @Inject(method = "onKey", at = @At("HEAD"), cancellable = true)
+        private void onKey(long window, int key, int scancode, int action, int modifiers, CallbackInfo ci) {
+            if (key == 19 && action == 1) { // R нажат
+                MinecraftClient client = MinecraftClient.getInstance();
+                if (client.currentScreen instanceof ModMenuScreen) {
+                    client.currentScreen.close();
+                } else {
+                    client.setScreen(new ModMenuScreen());
+                }
+                ci.cancel();
+            }
+        }
     }
 
     // ==================== GUI ====================
@@ -157,12 +179,14 @@ public class SpeedMod implements ModInitializer {
 
         @Override
         public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-            if (keyCode == 54) { this.close(); return true; }
+            if (keyCode == 19) { // R
+                this.close();
+                return true;
+            }
             return super.keyPressed(keyCode, scanCode, modifiers);
         }
     }
 
-    // ---- Вспомогательные классы ----
     public static class SectionButton extends ButtonWidget {
         private int defaultColor = 0xFFFFFFFF;
         private int hoverColor = 0xFFFFB6C1;
